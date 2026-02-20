@@ -2,43 +2,43 @@ pipeline {
     agent any
 
     stages {
-	stage('Checkout') {
+        stage('Build') {
             steps {
-		echo 'Checking out code...'
-		checkout scm
-	    }
-	}
+                echo 'Building...'
+            }
+        }
 
-	stage('Build') {
-	    steps {
-		echo 'Building application'
-		sh 'echo "Build step placeholder"'
-	    }
-	}
+        stage('Test') {
+            steps {
+                echo 'Testing...'
+            }
+        }
 
-	stage('Test') {
-	    steps {
-		echo 'Deploying...'
-		sh 'echo "Testing step placeholder"'
-	    }
-	}
+        stage('Approval Gate') {
+            steps {
+                input(
+                    message: 'Deploy to Production?',
+                    ok: 'Yes, deploy it!',
+                    submitter: 'admin,frentzen',  // ← only these users can approve
+                    parameters: [
+                        choice(
+                            name: 'APPROVER_DECISION',
+                            choices: ['Approve', 'Reject'],
+                            description: 'Your decision'
+                        ),
+                        text(
+                            name: 'APPROVER_NOTES',
+                            description: 'Add any notes (optional)'
+                        )
+                    ]
+                )
+            }
+        }
 
-	}
-    post {
-	success { 
-	    echo 'Pipeline completed successfully'
-	    }
-
-	failure {
-	    echo 'Pipeline failed'
-	    }
-
-	always {
-	    echo 'Pipeline finished - cleaning up'
-	    }
-
+        stage('Deploy Production') {
+            steps {
+                echo 'Deploying to production...'
+            }
+        }
     }
-
-	
 }
-
